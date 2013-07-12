@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 /*
 Automatically grade files for the presence of specified HTML tags/attributes.
 Uses commander.js and cheerio. Teaches command line application development
@@ -23,16 +22,18 @@ References:
 */
 
 var fs = require('fs');
-var program = require('cheerio');
+var program = require('commander');
+var cheerio = require('cheerio');
 var HTMLFILE_DEFAULT = "index.html";
 var CHECKSFILE_DEFAULT = "checks.json";
 
 var assertFileExists = function(infile) {
     var instr = infile.toString();
     if(!fs.existsSync(instr)) {
-	console.log("%s does not exist. Exiting", instr);
-	process.exit(1); // http://nodejs.org/api/process.html#process_process_exit_code
-    }
+	console.log("%s does not exist. Exiting.", instr);
+	process.exit(1);
+// http://nodejs.org/api/process.html#process_process_exit_code
+    };
     return instr;
 };
 
@@ -40,7 +41,11 @@ var cheerioHtmlFile = function(htmlfile) {
     return cheerio.load(fs.readFileSync(htmlfile));
 };
 
-var loadChecks = function(htmlfile, checksfile) {
+var loadChecks = function(checksfile) {
+  return JSON.parse(fs.readFileSync(checksfile));
+};
+
+var checkHtmlFile = function(htmlfile, checksfile) {
     $ = cheerioHtmlFile(htmlfile);
     var checks = loadChecks(checksfile).sort();
     var out = {};
@@ -63,9 +68,8 @@ if(require.main == module) {
 	.option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
 	.parse(process.argv);
     var checkJson = checkHtmlFile(program.file, program.checks);
-    var outJson = JSON.stringigy(checkJson, null, 4);
+    var outJson = JSON.stringify(checkJson, null, 4);
     console.log(outJson);
-}
-else {
+} else {
     exports.checkHtmlFile = checkHtmlFile;
 }
