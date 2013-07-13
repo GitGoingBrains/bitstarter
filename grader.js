@@ -20,12 +20,13 @@ References:
    - https://developer.mozilla.org/en-US/docs/JSON
    - https://developer.mozilla.org/en-US/docs/JSON#JSON_in_Firefox_2
 */
-
+var rest = require('restler');
 var fs = require('fs');
 var program = require('commander');
 var cheerio = require('cheerio');
 var HTMLFILE_DEFAULT = "index.html";
 var CHECKSFILE_DEFAULT = "checks.json";
+var URL_DEFAULT = "http://murmuring-brushlands-3582.herokuapp.com/";
 
 var assertFileExists = function(infile) {
     var instr = infile.toString();
@@ -38,8 +39,38 @@ var assertFileExists = function(infile) {
 };
 
 var cheerioHtmlFile = function(htmlfile) {
+//here is where I started
+  //  rest.get(htmlfile).on('complete',
+  //  cheerio.load(fs.readFileSync(htmlfile));
     return cheerio.load(fs.readFileSync(htmlfile));
 };
+/*var buildit = function (cheerioHtmlFile) {
+    var response2console = function(result, response) {
+	if result (instanceof Error) {
+	    console.error('URL Error: ' + util.format(response.message));
+	}
+};*/
+var response2console = function(result, response) {
+//        if (result instanceof Error) {
+//            console.error('Error: ' + util.format(response.message));
+//        } else {
+//          console.error("Wrote %s", htmlresult);
+            fs.writeFileSync(result);
+};
+
+var fetchHtml = function(url) {
+    rest.get(url).on('complete', response2console);
+    return response2console;
+};
+
+var buildRender = function(
+var assertUrlExists = function(url) {
+    var 
+}
+
+    
+
+
 
 var loadChecks = function(checksfile) {
   return JSON.parse(fs.readFileSync(checksfile));
@@ -49,7 +80,7 @@ var checkHtmlFile = function(htmlfile, checksfile) {
     $ = cheerioHtmlFile(htmlfile);
     var checks = loadChecks(checksfile).sort();
     var out = {};
-    for (var ii in checks) {
+    for (var ii inchecks) {
 	var present = $(checks[ii]).length > 0;
 	out[checks[ii]] = present;
     }
@@ -66,6 +97,7 @@ if(require.main == module) {
     program
 	.option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
 	.option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
+	.option('-u, --url <url_string>', 'Pather to url', clone(assertUrlExists), HTMLFILE_DEFAULT)
 	.parse(process.argv);
     var checkJson = checkHtmlFile(program.file, program.checks);
     var outJson = JSON.stringify(checkJson, null, 4);
