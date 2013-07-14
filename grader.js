@@ -39,38 +39,19 @@ var assertFileExists = function(infile) {
 };
 
 var cheerioHtmlFile = function(htmlfile) {
-//here is where I started
-  //  rest.get(htmlfile).on('complete',
-  //  cheerio.load(fs.readFileSync(htmlfile));
     return cheerio.load(fs.readFileSync(htmlfile));
 };
-/*var buildit = function (cheerioHtmlFile) {
-    var response2console = function(result, response) {
-	if result (instanceof Error) {
-	    console.error('URL Error: ' + util.format(response.message));
-	}
-};*/
-var response2console = function(result, response) {
-//        if (result instanceof Error) {
-//            console.error('Error: ' + util.format(response.message));
-//        } else {
-//          console.error("Wrote %s", htmlresult);
-            fs.writeFileSync(result);
+
+// take a URL response and write to file
+var responseHtml = function(result, response) {
+    fs.writeFile(tempHtml, result);
 };
 
+// fetch a URL response
 var fetchHtml = function(url) {
-    rest.get(url).on('complete', response2console);
-    return response2console;
+    rest.get(url).on('complete', responseHtml);
+    return responseHtml;
 };
-
-var buildRender = function(
-var assertUrlExists = function(url) {
-    var 
-}
-
-    
-
-
 
 var loadChecks = function(checksfile) {
   return JSON.parse(fs.readFileSync(checksfile));
@@ -88,8 +69,6 @@ var checkHtmlFile = function(htmlfile, checksfile) {
 };
 
 var clone = function(fn) {
-    // Workaround for commander.js issue.
-    // http://stackoverflow.com/a/6772648
     return fn.bind({});
 };
 
@@ -97,11 +76,19 @@ if(require.main == module) {
     program
 	.option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
 	.option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
-	.option('-u, --url <url_string>', 'Pather to url', clone(assertUrlExists), HTMLFILE_DEFAULT)
+	.option('-u, --url <url_string>', 'Path to url of index.html')
 	.parse(process.argv);
-    var checkJson = checkHtmlFile(program.file, program.checks);
+    
+    if(program.url != null)   {
+	var tempHtml = 'fetched_index.html';
+	fetchhtml(program.url);
+	var checkJson = checkHtmlFile(tempHtml, program.checks);
+    } else {
+	var checkJson = checkHtmlFile(program.file, program.checks);
+    };
+
     var outJson = JSON.stringify(checkJson, null, 4);
     console.log(outJson);
 } else {
     exports.checkHtmlFile = checkHtmlFile;
-}
+};
