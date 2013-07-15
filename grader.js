@@ -39,7 +39,6 @@ var assertFileExists = function(infile) {
     return instr;
 };
 
-
 var clone = function(fn) {
     // Workaround for commander.js issue.
     // http://stackoverflow.com/a/6772648
@@ -52,77 +51,62 @@ if(require.main == module) {
         .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
         .option('-u, --url <url_string>', 'Path to url of index.html')
         .parse(process.argv);
-
+//url condition
     if(program.url != null)   {
-                                                                              console.log('0000');
 	var tempHtml = 'fetched_index.html';
-	                                                                      console.log('0011');
-	var finishLine = function () {
-	    console.log('log out Json now');
-//	    console.log(outJson);
-	};    
 	var getErDone = function(result, response) {
 	    console.error("Wrote to file: %s", tempHtml); 
-	                                                       console.log(tempHtml);                  console.log('0022');
 	    fs.writeFileSync(tempHtml, result);
-	                                                                         console.log('0033');
 	    assertFileExists(tempHtml);
-	                                                                        console.log('0044');
-var cheerioHtmlFile = function(htmlfile) {
-    return cheerio.load(fs.readFileSync(htmlfile));
-};
 
-var loadChecks = function(checksfile) {
-    return JSON.parse(fs.readFileSync(checksfile));
-};
+	    var cheerioHtmlFile = function(htmlfile) {
+		return cheerio.load(fs.readFileSync(htmlfile));
+	    };
 
-var checkHtmlFile = function(htmlfile, checksfile) {
-    $ = cheerioHtmlFile(htmlfile);
-    var checks = loadChecks(checksfile).sort();
-    var out = {};
-    for(var ii in checks) {
-        var present = $(checks[ii]).length > 0;
-        out[checks[ii]] = present;
-    }
-    return out;
-};
+	    var loadChecks = function(checksfile) {
+		return JSON.parse(fs.readFileSync(checksfile));
+	    };
+
+	    var checkHtmlFile = function(htmlfile, checksfile) {
+		$ = cheerioHtmlFile(htmlfile);
+		var checks = loadChecks(checksfile).sort();
+		var out = {};
+		for(var ii in checks) {
+		    var present = $(checks[ii]).length > 0;
+		    out[checks[ii]] = present;
+		}
+		return out;
+	    };
 	    
 	    var checkJson = checkHtmlFile(tempHtml, program.checks);
-	                                                                          console.log('0055');
 	    var outJson = JSON.stringify(checkJson, null, 4);
 	    console.log(outJson);
-	                                                                         console.log('0066')
-	    finishLine();  
-	                                                                          console.log('0077');
+	    var outfile = 'outFromJson';
+	    fs.writeFileSync(outfile, outJson);
 	};
+//here is the url call
         rest.get(program.url).on('complete', getErDone);
-	                                                                       console.log('1111');
+
     } else {
+//file condiition (duplicated code, but I need to move on with my homework)
+	var cheerioHtmlFile = function(htmlfile) {
+	    return cheerio.load(fs.readFileSync(htmlfile));
+	};
 
-var cheerioHtmlFile = function(htmlfile) {
-    return cheerio.load(fs.readFileSync(htmlfile));
-};
+	var loadChecks = function(checksfile) {
+	    return JSON.parse(fs.readFileSync(checksfile));
+	};
 
-var loadChecks = function(checksfile) {
-    return JSON.parse(fs.readFileSync(checksfile));
-};
-
-var checkHtmlFile = function(htmlfile, checksfile) {
-    $ = cheerioHtmlFile(htmlfile);
-    var checks = loadChecks(checksfile).sort();
-    var out = {};
-    for(var ii in checks) {
-        var present = $(checks[ii]).length > 0;
-        out[checks[ii]] = present;
-    }
-    return out;
-};
-
-
-
-
-
-
+	var checkHtmlFile = function(htmlfile, checksfile) {
+	    $ = cheerioHtmlFile(htmlfile);
+	    var checks = loadChecks(checksfile).sort();
+	    var out = {};
+	    for(var ii in checks) {
+		var present = $(checks[ii]).length > 0;
+		out[checks[ii]] = present;
+	    }
+	    return out;
+	};
         var checkJson = checkHtmlFile(program.file, program.checks);
         var outJson = JSON.stringify(checkJson, null, 4);
 	console.log(outJson);
